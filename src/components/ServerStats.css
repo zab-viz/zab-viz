@@ -1,0 +1,13 @@
+.stats {
+  border: 1px solid black;
+  width: auto;
+  margin-inline: 2%;
+  overflow-wrap: break-word;
+  text-align: left;
+  padding-inline: 2%;
+}
+
+.stats > p { 
+  margin-block: 0;
+  
+}
