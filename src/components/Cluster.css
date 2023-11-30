@@ -13,7 +13,7 @@
 
 .cluster-setup {
   position: relative;
-  background-color: #ccc;
+  background-color: #eee;
   margin: 0 auto;
   height: 500px;
   width: 500px;
@@ -63,6 +63,14 @@
   position: absolute;
   visibility: hidden;
   transition: all 2s ease-in;
+}
+
+.client-machine-point {
+  top: -11%;
+  background-color: #000;
+  right: -65%;
+  visibility: visible !important;
+  transition: all 3s linear !important;
 }
 
 .S1-message-point {

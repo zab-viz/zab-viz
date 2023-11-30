@@ -4,11 +4,16 @@ import Server from './Server';
 
 
 const SERVER_MESSAGE_POINTS = {
-  S1: { top: "5%", left: "47%" },
+  S1: { top: "5%", left: "47%", right: "48%" },
   S2: { top: "35%", left: "8%" },
   S3: { top: "75%", left: "16%" },
   S4: { top: "75%", left: "78%" },
   S5: { top: "35%", left: "88%" }
+}
+
+const CLIENT_MACHINE_POINTS = {
+  top: "-11%",
+  right: "-65%"
 }
 
 export default class Cluster extends React.Component {
@@ -24,12 +29,92 @@ export default class Cluster extends React.Component {
     this.serverRefs[name] = instance;
   }
 
-  changeClusterState = (clusterState) => {
-    this.setState({ clusterState });
+  getClientMessagePoint = () => {
+    const messageBox = document.getElementById("message-box");
+    const messagePoint = document.createElement("div");
+    messagePoint.className = `message-point client-machine-point`;
+    messagePoint.style.visibility = "visible";
+    messageBox.appendChild(messagePoint);
+    return messagePoint;
+  }
+
+  changeClusterState = (clusterState, leaderName = "") => {
+    if (clusterState === "BROADCAST") {
+      setTimeout(() => {
+        const clientMachine = document.getElementById("client-machine");
+        clientMachine.style.visibility = "visible";
+
+        this.streamMsgs = streamMsgs.bind(this);
+        function streamMsgs() {
+          const clientPoint = this.getClientMessagePoint();
+          setTimeout(() => {
+            clientPoint.style.top = SERVER_MESSAGE_POINTS[leaderName].top;
+            clientPoint.style.right = 95 - (SERVER_MESSAGE_POINTS[leaderName].left).split("%")[0] + "%";
+            // send random number to leader between 0 and 100
+            setTimeout(() => {
+              const randomNum = Math.floor(Math.random() * 100);
+              this.serverRefs[leaderName].receiveClientMessage(randomNum);
+            }, 3000);
+          }, 500);
+          setTimeout(() => {
+            clientPoint.parentNode.removeChild(clientPoint);
+          }, 5000);
+        }
+
+        const startButton = document.createElement("button");
+        startButton.innerHTML = "Start Messages";
+
+        const stopButton = document.createElement("button");
+        stopButton.innerHTML = "Stop Messages";
+
+        const randomReadButton = document.createElement("button");
+        randomReadButton.innerHTML = "Random Read";
+
+        randomReadButton.onclick = () => {
+          // choose random server to read from without leader
+          const followers = Object.keys(SERVER_MESSAGE_POINTS).filter(name => name !== leaderName);
+          const randomServer = followers[Math.floor(Math.random() * followers.length)];
+
+          const randomReadPoint = this.getClientMessagePoint();
+          setTimeout(() => {
+            randomReadPoint.style.top = SERVER_MESSAGE_POINTS[randomServer].top;
+            randomReadPoint.style.right = 95 - (SERVER_MESSAGE_POINTS[randomServer].left).split("%")[0] + "%";
+            // send random number to leader between 0 and 100
+            setTimeout(() => {
+              this.serverRefs[randomServer].receiveClientMessage(null, "R");
+            }, 3000);
+            setInterval(() => {
+              randomReadPoint.parentNode?.removeChild(randomReadPoint);
+            }, 6000);
+          }, 500);
+
+          // clientMachine.removeChild(randomReadButton);
+        }
+
+        startButton.onclick = () => {
+          this.cliMsgIntRef = setInterval(this.streamMsgs, 7000);
+          clientMachine.removeChild(startButton);
+          clientMachine.appendChild(stopButton);
+        }
+
+
+        stopButton.onclick = () => {
+          clearInterval(this.cliMsgIntRef);
+          clientMachine.removeChild(stopButton);
+          clientMachine.appendChild(startButton);
+          clientMachine.appendChild(randomReadButton);
+        }
+
+        clientMachine.appendChild(stopButton);
+
+        this.cliMsgIntRef = setInterval(this.streamMsgs, 7000);
+      }, 2500);
+    }
+    this.setState({ clusterState, leaderName });
   }
 
   render() {
-    const updateStates = { serverRefs: this.serverRefs, SERVER_MESSAGE_POINTS, changeClusterState: this.changeClusterState };
+    const updateStates = { serverRefs: this.serverRefs, SERVER_MESSAGE_POINTS, changeClusterState: this.changeClusterState, CLIENT_MACHINE_POINTS };
     const { clusterState } = this.state;
     return (
       <div className='cluster'>
@@ -51,12 +136,10 @@ export default class Cluster extends React.Component {
             <Server name="S4" statsPosition="right" ref={instance => this.setInstance(instance, "S4")} {...updateStates} />
           </div>
           <div id="message-box">
-            {/* <div className="message-point s1-message-point" id=""></div>
-            <div className="message-point s2-message-point" id=""></div>
-            <div className="message-point s3-message-point" id=""></div>
-            <div className="message-point s4-message-point" id=""></div>
-            <div className="message-point s5-message-point" id=""></div> */}
           </div>
+        </div>
+        <div>
+          <button>Hide Heart Beats</button>
         </div>
       </div>
     )

@@ -8,7 +8,7 @@ export default class ServerStats extends React.Component {
       {/* <p>State: {state}</p> */}
       <p>acceptedEpoch: {acceptedEpoch}</p>
       <p>currentEpoch: {currentEpoch}</p>
-      <p>lastZxid: {lastZxid}</p>
+      <p>lastZxid: {lastZxid === -1 ? "NONE" : lastZxid}</p>
       <p>history: {history.length ? `[${history.join(", ")}]` : "EMPTY"}</p>
     </div>
   }

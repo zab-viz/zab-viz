@@ -46,6 +46,22 @@
   color: #61dafb;
 }
 
+.client-machine {
+  position: absolute;
+  top: 15%;
+  right: 5%;
+  width: 10%;
+  /* height: 10%; */
+  border: 1px solid #333;
+  visibility: hidden;
+}
+
+.client-machine > p {
+  margin-block: 0;
+  margin-inline-start: 5%;
+  font-size: 0.8em;
+}
+
 .message-labels {
   position: absolute;
   top: 15%;
@@ -89,19 +105,35 @@
 }
 
 .ask-vote {
-  background-color: bisque !important;
+  background-color: #f44e4e !important;
 }
 
 .follower-info {
-  background-color: aquamarine !important;
+  background-color: #07fdaa !important;
 }
 
 .new-epoch {
-  background-color: greenyellow !important;
+  background-color: #5c6d43 !important
 }
 
 .ack-epoch {
   background-color: burlywood !important;
+}
+
+.new-leader {
+  background-color: cornflowerblue !important;
+}
+
+.ack-new-leader {
+  background-color: green !important;
+}
+
+.heart-beat {
+  background-color: darkorange !important;
+}
+
+.client-message-forward {
+  background-color: #222 !important;
 }
 
 .message-visible-relative {
