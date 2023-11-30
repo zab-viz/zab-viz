@@ -63,3 +63,12 @@
   left: 100%;
   width: 180px;
 }
+
+.countDownTimer {
+  border: 1px solid black;
+  width: 10%;
+  text-align: end;
+  position: absolute;
+  top: 100%;
+  right: 0;
+}

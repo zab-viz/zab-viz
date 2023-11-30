@@ -46,6 +46,69 @@
   color: #61dafb;
 }
 
+.message-labels {
+  position: absolute;
+  top: 15%;
+  left: 5%;
+  width: 20%;
+  /* height: 20%; */
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.message-label-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.message-labels > h4 {
+  margin-top: 1%;
+  margin-bottom: 0;
+  width: 100%;
+  border-bottom: 1px solid #333;
+}
+
+.message-list-item {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  margin-inline: 5%;
+}
+
+.message-list-item > p {
+  margin-block: 0px;
+  margin-inline-start: 5%;
+  font-size: 0.8em;
+  margin-bottom: 5%;
+}
+
+.ask-vote {
+  background-color: bisque !important;
+}
+
+.follower-info {
+  background-color: aquamarine !important;
+}
+
+.new-epoch {
+  background-color: greenyellow !important;
+}
+
+.ack-epoch {
+  background-color: burlywood !important;
+}
+
+.message-visible-relative {
+  position: relative !important;
+  visibility: visible !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
