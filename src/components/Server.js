@@ -1,6 +1,10 @@
 import React from 'react';
 import './Server.css';
 import ServerStats from './ServerStats';
+import { IoMdCloseCircle } from "react-icons/io";
+
+const MIN_TIME = 3000;
+const MAX_TIME = 6000;
 
 export default class Server extends React.Component {
   constructor(props) {
@@ -14,10 +18,9 @@ export default class Server extends React.Component {
         lastZxid: -1
       },
       name: props.name,
-      electionTimer: 0,
+      electionTimer: MAX_TIME,
+      iAmDead: false,
     };
-    this.MIN_TIME = 3000;
-    this.MAX_TIME = 6000;
     this.followerInfos = [];
     this.ackEpochs = [];
     this.followerInfoCnt = 0;
@@ -35,6 +38,7 @@ export default class Server extends React.Component {
     this.sendHeartBeats = this.sendHeartBeats.bind(this);
     this.receiveClientMessageLeader = this.receiveClientMessageLeader.bind(this);
     this.heartBeat = this.heartBeat.bind(this);
+    this.stopHeartbeat = this.stopHeartbeat.bind(this);
   }
 
   getMessagePoint = () => {
@@ -48,7 +52,7 @@ export default class Server extends React.Component {
 
   askVote = () => {
     const { name } = this.state;
-    const { serverRefs } = this.props;
+    const { serverRefs, SERVER_MESSAGE_POINTS } = this.props;
     // set nested stats in state
     this.setState(prevState => ({
       stats: {
@@ -68,8 +72,9 @@ export default class Server extends React.Component {
         messagePoint.className += " ask-vote";
         messagePoint.id = `${name}-${serverName}-ask-vote`;
         setTimeout(() => {
-          messagePoint.style.top = this.props.SERVER_MESSAGE_POINTS[serverName].top;
-          messagePoint.style.left = this.props.SERVER_MESSAGE_POINTS[serverName].left;
+
+          messagePoint.style.top = SERVER_MESSAGE_POINTS[serverName].top;
+          messagePoint.style.left = SERVER_MESSAGE_POINTS[serverName].left;
         }, 500);
         setTimeout(() => {
           serverRefs[serverName].giveVote(name);
@@ -91,7 +96,7 @@ export default class Server extends React.Component {
     this.setState(prevState => ({
       stats: {
         ...prevState.stats,
-        state: "FOLLOWING"
+        state: "FOLLOW"
       }
     }));
 
@@ -111,7 +116,7 @@ export default class Server extends React.Component {
     setTimeout(() => {
       const msg = document.getElementById(`${name}-${askingServer}-follower-info`);
       msg.parentNode.removeChild(msg);
-    }, 6000);
+    }, 4500);
   }
 
   followerInfo = (followerName, incomingEpoch) => {
@@ -147,7 +152,7 @@ export default class Server extends React.Component {
           setTimeout(() => {
             const msg = document.getElementById(`${name}-${serverName}-new-epoch`);
             msg.parentNode.removeChild(msg);
-          }, 4000);
+          }, 3000);
         }
       });
     }
@@ -346,10 +351,9 @@ export default class Server extends React.Component {
   }
 
   startTimer = () => {
-    this.timerRef = setInterval(this.timerFn, 1000)
     this.timerFn = timerFn.bind(this);
     function timerFn() {
-      const {electionTimer} = this.state;
+      const { electionTimer } = this.state;
       if (electionTimer <= 0) return;
       if (electionTimer <= 100) {
         clearInterval(this.timerRef);
@@ -357,6 +361,7 @@ export default class Server extends React.Component {
       }
       this.setState(prevState => ({ electionTimer: prevState.electionTimer - 100 }));
     }
+    this.timerRef = setInterval(this.timerFn, 500)
   }
 
   sendHeartBeats = () => {
@@ -367,50 +372,54 @@ export default class Server extends React.Component {
       const { name, stats } = this.state;
       Object.keys(serverRefs).forEach(serverName => {
         if (serverName !== name) {
-          const messagePoint = this.getMessagePoint();
-          messagePoint.className += " heart-beat";
-          messagePoint.id = `${name}-${serverName}-heart-beat`;
-          setTimeout(() => {
-            messagePoint.style.top = this.props.SERVER_MESSAGE_POINTS[serverName].top;
-            messagePoint.style.left = this.props.SERVER_MESSAGE_POINTS[serverName].left;
-          }, 500);
+          let messagePoint;
+          if (!this.state.skipHeartBeats) {
+            messagePoint = this.getMessagePoint();
+            messagePoint.className += " heart-beat";
+            messagePoint.id = `${name}-${serverName}-heart-beat`;
+            setTimeout(() => {
+              messagePoint.style.top = this.props.SERVER_MESSAGE_POINTS[serverName].top;
+              messagePoint.style.left = this.props.SERVER_MESSAGE_POINTS[serverName].left;
+            }, 500);
+            setTimeout(() => {
+              const msg = document.getElementById(`${name}-${serverName}-heart-beat`);
+              msg.parentNode?.removeChild(msg);
+            }, 4000);
+          }
           setTimeout(() => {
             serverRefs[serverName].heartBeat(name, stats.currentEpoch, stats.history, stats.lastZxid);
           }, 2500);
-          setTimeout(() => {
-            const msg = document.getElementById(`${name}-${serverName}-heart-beat`);
-            msg.parentNode?.removeChild(msg);
-          }, 4000);
         }
       });
     }
-    setInterval(this.heartBeatsFn, 1000);
+    this.heartBeatsIntRef = setInterval(this.heartBeatsFn, 1000);
   }
 
   heartBeat = () => {
-    this.setState({ electionTimer: this.MAX_TIME })
-    setTimeout(() => {
-      this.startTimer();
-    }, 200);
+    this.setState({ electionTimer: MAX_TIME })
+  }
+
+  stopHeartbeat = (hide = true) => {
+    this.setState({ skipHeartBeats: hide })
+
   }
 
   componentDidMount() {
-    const { MIN_TIME, MAX_TIME } = this;
     // get random time between 3 and 6 seconds
     const randomTime = Math.floor(Math.random() * (MAX_TIME - MIN_TIME + 1) + MIN_TIME);
     // const percentTimer = randomTime / MAX_TIME * 100;
     this.setState({ electionTimer: randomTime });
-    setTimeout(() => {
-      this.startTimer();
-    }, 200);
+    // setTimeout(() => {
+    //   this.startTimer();
+    // }, 200);
   }
 
   render() {
     const { stats, name, electionTimer } = this.state;
-    const { MAX_TIME } = this;
     return (
       <div className="server">
         <div className="server-name-state">
+          <div className = "kill-server"><IoMdCloseCircle /></div>
           <h3 className={`server-name ${this.state.stats.state === "LEADING" ? "leader-server-name" : ""}`}>{this.props.name}</h3>
           <p>{stats.state}</p>
           <div className={`countDownTimer`} style={{ width: `${electionTimer / MAX_TIME * 100}%` }} ></div>

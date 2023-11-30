@@ -18,11 +18,13 @@ const CLIENT_MACHINE_POINTS = {
 
 export default class Cluster extends React.Component {
   constructor(props) {
-    super();
-    this.state = { clusterState: "ELECTION" }
+    super(props);
+    this.state = { clusterState: "ELECTION", hideHeartbeats: false }
     this.serverRefs = {};
     this.setInstance = this.setInstance.bind(this);
     this.changeClusterState = this.changeClusterState.bind(this);
+    this.stopHeartbeats = this.stopHeartbeats.bind(this);
+    this.startServerTimers = this.startServerTimers.bind(this);
   }
 
   setInstance = (instance, name) => {
@@ -113,6 +115,25 @@ export default class Cluster extends React.Component {
     this.setState({ clusterState, leaderName });
   }
 
+  stopHeartbeats = () => {
+    this.setState({ hideHeartbeats: true })
+    Object.keys(this.serverRefs).forEach(serverName => {
+      this.serverRefs[serverName].stopHeartbeat();
+    });
+  }
+  showHeartbeats = () => {
+    this.setState({ hideHeartbeats: false })
+    Object.keys(this.serverRefs).forEach(serverName => {
+      this.serverRefs[serverName].stopHeartbeat(false);
+    });
+  }
+
+  startServerTimers = () => {
+    Object.keys(this.serverRefs).forEach(serverName => {
+      this.serverRefs[serverName].startTimer();
+    });
+  }
+
   render() {
     const updateStates = { serverRefs: this.serverRefs, SERVER_MESSAGE_POINTS, changeClusterState: this.changeClusterState, CLIENT_MACHINE_POINTS };
     const { clusterState } = this.state;
@@ -138,8 +159,9 @@ export default class Cluster extends React.Component {
           <div id="message-box">
           </div>
         </div>
-        <div>
-          <button>Hide Heart Beats</button>
+        <div className="setting-buttons">
+          <button onClick={() => this.startServerTimers()}>Start Timer</button>
+          <button onClick={() => this.state.hideHeartbeats ? this.showHeartbeats() : this.stopHeartbeats()}>{this.state.hideHeartbeats ? "Show" : "Hide"} HeartBeats</button>
         </div>
       </div>
     )
