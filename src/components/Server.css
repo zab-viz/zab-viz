@@ -30,6 +30,16 @@
   background-color: #fff;
 }
 
+.dead-server {
+  background-color: red;
+  color: #fff;
+}
+
+.live-server {
+  background-color: rgb(159, 52, 186);
+  color: #fff;
+}
+
 .server-name-state p {
   margin-block: 0;
   margin-top: 1%;

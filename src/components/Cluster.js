@@ -42,6 +42,10 @@ export default class Cluster extends React.Component {
 
   changeClusterState = (clusterState, leaderName = "") => {
     if (clusterState === "BROADCAST") {
+
+      // start all the timers for the servers
+      this.startServerTimers(leaderName);
+
       setTimeout(() => {
         const clientMachine = document.getElementById("client-machine");
         clientMachine.style.visibility = "visible";
@@ -128,8 +132,9 @@ export default class Cluster extends React.Component {
     });
   }
 
-  startServerTimers = () => {
+  startServerTimers = (skip) => {
     Object.keys(this.serverRefs).forEach(serverName => {
+      if (serverName === skip) return;
       this.serverRefs[serverName].startTimer();
     });
   }
