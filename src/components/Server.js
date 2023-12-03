@@ -185,14 +185,14 @@ export default class Server extends React.Component {
       setTimeout(() => {
         messagePoint.style.top = this.props.SERVER_MESSAGE_POINTS[leaderName].top;
         messagePoint.style.left = this.props.SERVER_MESSAGE_POINTS[leaderName].left;
-      }, 500);
+      }, 10000);
       setTimeout(() => {
         serverRefs[leaderName].ackEpoch(name, stats.currentEpoch, stats.history, stats.lastZxid);
-      }, 2500);
+      }, 13000);
       setTimeout(() => {
         const msg = document.getElementById(`${name}-${leaderName}-ack-epoch`);
         msg.parentNode.removeChild(msg);
-      }, 4000);
+      }, 13000);
     }
   }
 
@@ -235,14 +235,14 @@ export default class Server extends React.Component {
           setTimeout(() => {
             messagePoint.style.top = this.props.SERVER_MESSAGE_POINTS[serverName].top;
             messagePoint.style.left = this.props.SERVER_MESSAGE_POINTS[serverName].left;
-          }, 500);
+          }, 10000);
           setTimeout(() => {
             serverRefs[serverName].newLeader(name, _follower.currentEpoch, _follower.history);
-          }, 2500);
+          }, 13000);
           setTimeout(() => {
             const msg = document.getElementById(`${name}-${serverName}-new-leader`);
             msg.parentNode.removeChild(msg);
-          }, 4000);
+          }, 13000);
         }
       });
       this.props.changeClusterState("SYNCHRONIZATION");
@@ -348,11 +348,11 @@ export default class Server extends React.Component {
         }, 500);
         setTimeout(() => {
           serverRefs[serverName].receiveClientMessageLeader(this.state.stats.history);
-        }, 2500);
+        }, 5000);
         setTimeout(() => {
           const msg = document.getElementById(`${name}-${serverName}-client-message`);
           msg.parentNode.removeChild(msg);
-        }, 4000);
+        }, 5000);
       }
     });
   }

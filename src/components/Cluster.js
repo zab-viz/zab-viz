@@ -114,7 +114,7 @@ export default class Cluster extends React.Component {
         clientMachine.appendChild(stopButton);
 
         this.cliMsgIntRef = setInterval(this.streamMsgs, 7000);
-      }, 2500);
+      }, 10000);
     }
     this.setState({ clusterState, leaderName });
   }
